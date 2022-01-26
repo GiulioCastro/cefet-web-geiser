@@ -1,5 +1,6 @@
 // importação de dependência(s)
 import express from 'express';
+import { readFile } from 'fs/promises'
 
 const app = express();
 
@@ -12,6 +13,11 @@ const db = {}
 // você pode colocar o conteúdo dos arquivos json no objeto "db" logo abaixo
 // dica: 1-4 linhas de código (você deve usar o módulo de filesystem (fs))
 
+const jogadoresJSON = await readFile('server/data/jogadores.json')
+db.jogadores = JSON.parse(jogadoresJSON);
+
+const jogosPorJogadorJSON = await readFile('server/data/jogosPorJogador.json')
+db.jogosPorJogador = JSON.parse(jogosPorJogadorJSON);
 
 
 
@@ -19,7 +25,8 @@ const db = {}
 //app.set('view engine', '???qual-templating-engine???');
 //app.set('views', '???caminho-ate-pasta???');
 // dica: 2 linhas
-
+app.set("view engine", "hbs");
+app.set("views", "server/views");
 
 // EXERCÍCIO 2
 // definir rota para página inicial --> renderizar a view index, usando os
@@ -27,6 +34,9 @@ const db = {}
 // dica: o handler desta função é bem simples - basta passar para o template
 //       os dados do arquivo data/jogadores.json (~3 linhas)
 
+app.get("/", (req, res) => {
+    res.render("index.hbs", db.jogadores);
+});
 
 
 // EXERCÍCIO 3
@@ -40,7 +50,7 @@ const db = {}
 // configurar para servir os arquivos estáticos da pasta "client"
 // dica: 1 linha de código
 
-app.use(express.static('client/'));
+app.use(express.static('./client'));
 
 // abrir servidor na porta 3000 (constante PORT)
 // dica: 1-3 linhas de código
